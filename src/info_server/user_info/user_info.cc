@@ -19,6 +19,7 @@
 #include <QDebug>
 #include <QFile>
 #include <QDir>
+#include <QUrl>
 #include <sys/types.h>
 #include <unistd.h>
 #include <pwd.h>
@@ -29,10 +30,46 @@
 #include "absl/strings/str_cat.h"
 
 #include "src/info_server/user_info/user_info.h"
+#include "src/info_server/current_window/current_window_provider_factory.h"
 #include "src/utils/dbus_def.h"
 
 namespace panel {
 namespace backend {
+
+namespace {
+
+QString NormalizeAvatarPath(const QString& avatar) {
+  const QUrl url(avatar);
+  if (url.isLocalFile()) {
+    return url.toLocalFile();
+  }
+  if (url.scheme().isEmpty()) {
+    return avatar;
+  }
+  return {};
+}
+
+QString ReadAvatarPath(const QString& service, const QString& path,
+    const QString& interface_name) {
+  QDBusInterface interface(service, path, interface_name,
+    QDBusConnection::systemBus());
+  if (!interface.isValid()) {
+    return {};
+  }
+
+  const QVariant avatar_read = interface.property("IconFile");
+  if (!avatar_read.isValid()) {
+    return {};
+  }
+
+  const QString avatar_path = NormalizeAvatarPath(avatar_read.toString());
+  if (!avatar_path.isEmpty() && QFile::exists(avatar_path)) {
+    return avatar_path;
+  }
+  return {};
+}
+
+}  // namespace
 
 UserInfo::UserInfo(QObject* parent) : QObject(parent) {
   LOG(INFO) << absl::StrCat("UserInfo constructer invoked!!");
@@ -67,37 +104,48 @@ QString UserInfo::GetUserName() {
 QString UserInfo::GetUserAvatarPath() {
   uid_t uid = getuid();
   QString result;
-  QString user_path = QString("/org/freedesktop/Accounts/User%1").arg(uid);
-  QDBusInterface interface(DBUS_ACCOUNTS_SERVICE, user_path,
-    DBUS_ACCOUNTS_USER_INTERFACE, QDBusConnection::systemBus());
-  if (interface.isValid()) {
-    QVariant avatar_read = interface.property("IconFile");
-    if (avatar_read.isValid() && !avatar_read.toString().isEmpty()) {
-      result = avatar_read.toString();
-      if (QFile::exists(result)) {
-        LOG(INFO) << absl::StrCat(absl::StrFormat(
-          "Successfully got user avatar path from D-Bus: %s.",
-          result.toStdString()));
-        return result;
-      }
+
+  if (IsGxdeWlcom()) {
+    result = ReadAvatarPath(DBUS_DEEPIN_ACCOUNTS_SERVICE,
+      QStringLiteral(DBUS_DEEPIN_ACCOUNTS_USER_PATH) + QString::number(uid),
+      DBUS_DEEPIN_ACCOUNTS_USER_INTERFACE);
+    if (!result.isEmpty()) {
+      LOG(INFO) << absl::StrCat(absl::StrFormat(
+        "Successfully got GXDE user avatar path from D-Bus: %s.",
+        result.toStdString()));
+      return result;
     }
   }
 
-  LOG(WARNING) << absl::StrCat("Failed to get user avatar path from D-Bus. ",
-    "Now falling back to ~/.face.icon...");
-  QString user_home = QDir::homePath();
-  result = user_home + "/.face.icon";
-  if (QFile::exists(result)) {
+  result = ReadAvatarPath(DBUS_ACCOUNTS_SERVICE,
+    QString("/org/freedesktop/Accounts/User%1").arg(uid),
+    DBUS_ACCOUNTS_USER_INTERFACE);
+  if (!result.isEmpty()) {
     LOG(INFO) << absl::StrCat(absl::StrFormat(
-      "Successfully got user avatar path from ~/.face.icon: %s.",
+      "Successfully got user avatar path from D-Bus: %s.",
       result.toStdString()));
     return result;
   }
 
+  LOG(WARNING) << absl::StrCat("Failed to get user avatar path from D-Bus. ",
+    "Now falling back to the user face files...");
+  const QString user_home = QDir::homePath();
+  const QStringList fallback_paths = {
+    user_home + "/.face.icon",
+    user_home + "/.face",
+  };
+  for (const QString& fallback_path : fallback_paths) {
+    if (QFile::exists(fallback_path)) {
+      LOG(INFO) << absl::StrCat(absl::StrFormat(
+        "Successfully got user avatar path from face file: %s.",
+        fallback_path.toStdString()));
+      return fallback_path;
+    }
+  }
+
   LOG(ERROR) << absl::StrCat("Failed to get user avatar path from D-Bus and ",
-    "~/.face.icon does not exist either, returning empty string.");
-  result = "";
-  return result;
+    "no user face file exists, returning empty string.");
+  return {};
 }
 
 }  // namespace backend

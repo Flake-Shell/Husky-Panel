@@ -42,6 +42,10 @@
 // User Info
 #define DBUS_ACCOUNTS_SERVICE "org.freedesktop.Accounts"
 #define DBUS_ACCOUNTS_USER_INTERFACE "org.freedesktop.Accounts.User"
+#define DBUS_DEEPIN_ACCOUNTS_SERVICE "com.deepin.daemon.Accounts"
+#define DBUS_DEEPIN_ACCOUNTS_USER_PATH "/com/deepin/daemon/Accounts/User"
+#define DBUS_DEEPIN_ACCOUNTS_USER_INTERFACE \
+  "com.deepin.daemon.Accounts.User"
 
 // WLAN / Network Manager
 #define DBUS_NETWORK_MANAGER_SERVICE "org.freedesktop.NetworkManager"
