@@ -50,7 +50,8 @@ class WlrootsHelper : public QObject,
   bool pending_activated_ = false;
 
  signals:
-  void Activated(const QString& app_id, const QString& title);
+  void StateCommitted(WlrootsHelper* self, bool activated,
+    const QString& app_id, const QString& title);
   void Closed(WlrootsHelper* self);
 };
 
@@ -70,11 +71,17 @@ class WlrToplevelMgr
       struct ::zwlr_foreign_toplevel_handle_v1 *toplevel) override;
 
  private slots:
-  void OnHandleActivated(const QString& app_id, const QString& title);
+  void OnHandleStateCommitted(WlrToplevelHandle* handle, bool activated,
+    const QString& app_id, const QString& title);
   void OnHandleClosed(WlrToplevelHandle* handle);
+
+ private:
+  WlrToplevelHandle* active_handle_ = nullptr;
+  void ScheduleActiveStateCheck();
 
  signals:
   void TopLevelActivated(const QString& app_id, const QString& title);
+  void NoTopLevelActivated();
 };
 
 
@@ -94,6 +101,7 @@ class CurrentWindowWlrootsImpl : public CurrentWindowProvider {
 
  private slots:
   void OnTopLevelActivated(const QString& app_id, const QString& title);
+  void OnNoTopLevelActivated();
 };
 
 }  // namespace backend

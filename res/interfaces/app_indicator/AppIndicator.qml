@@ -47,7 +47,9 @@ Rectangle {
     }
 
     Text {
-      text: CurrentWindow.app_name
+      text: CurrentWindow.package_name === "gxde-desktop-panel"
+        ? StatusBarTranslator.Tr("GXDEDesktop")
+        : CurrentWindow.app_name
       color: Theme.status_bar_primary
       font.pixelSize: 12
       font.bold: true

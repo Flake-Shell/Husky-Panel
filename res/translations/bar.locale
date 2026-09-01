@@ -149,3 +149,7 @@ en_us = "Configure panel"
 [ExitPanel]
 zh_cn = "退出面板"
 en_us = "Exit panel"
+
+[GXDEDesktop]
+zh_cn = "GXDE桌面"
+en_us = "GXDE Desktop"

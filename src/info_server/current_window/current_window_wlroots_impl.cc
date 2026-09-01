@@ -16,6 +16,7 @@
  */
 
 #include <KService>
+#include <QTimer>
 
 #include <cstdint>
 
@@ -23,6 +24,7 @@
 #include "absl/strings/str_cat.h"
 
 #include "src/info_server/current_window/current_window_wlroots_impl.h"
+#include "src/info_server/current_window/current_window_provider_factory.h"
 
 namespace panel {
 namespace backend {
@@ -144,9 +146,8 @@ void WlrootsHelper::zwlr_foreign_toplevel_handle_v1_state(wl_array* state) {
  */
 
 void WlrootsHelper::zwlr_foreign_toplevel_handle_v1_done() {
-  if (pending_activated_) {
-    emit Activated(pending_app_id_, pending_title_);
-  }
+  emit StateCommitted(this, pending_activated_, pending_app_id_,
+    pending_title_);
 }
 
 
@@ -219,8 +220,8 @@ void WlrToplevelMgr::zwlr_foreign_toplevel_manager_v1_toplevel(struct
     ::zwlr_foreign_toplevel_handle_v1* toplevel) {
   auto* handle = new WlrToplevelHandle(toplevel, this);
 
-  connect(handle, &WlrToplevelHandle::Activated,
-    this, &WlrToplevelMgr::OnHandleActivated);
+  connect(handle, &WlrToplevelHandle::StateCommitted,
+    this, &WlrToplevelMgr::OnHandleStateCommitted);
   connect(handle, &WlrToplevelHandle::Closed,
     this, &WlrToplevelMgr::OnHandleClosed);
 }
@@ -235,9 +236,29 @@ void WlrToplevelMgr::zwlr_foreign_toplevel_manager_v1_toplevel(struct
  * @return void
  */
 
-void WlrToplevelMgr::OnHandleActivated(const QString& app_id,
-    const QString& title) {
-  emit TopLevelActivated(app_id, title);
+void WlrToplevelMgr::OnHandleStateCommitted(WlrToplevelHandle* handle,
+    bool activated, const QString& app_id, const QString& title) {
+  if (activated) {
+    active_handle_ = handle;
+    emit TopLevelActivated(app_id, title);
+    return;
+  }
+
+  if (active_handle_ == handle) {
+    active_handle_ = nullptr;
+  }
+  if (active_handle_ == nullptr) {
+    ScheduleActiveStateCheck();
+  }
+}
+
+
+void WlrToplevelMgr::ScheduleActiveStateCheck() {
+  QTimer::singleShot(0, this, [this]() {
+    if (active_handle_ == nullptr) {
+      emit NoTopLevelActivated();
+    }
+  });
 }
 
 
@@ -250,6 +271,10 @@ void WlrToplevelMgr::OnHandleActivated(const QString& app_id,
  */
 
 void WlrToplevelMgr::OnHandleClosed(WlrToplevelHandle* handle) {
+  if (active_handle_ == handle) {
+    active_handle_ = nullptr;
+    ScheduleActiveStateCheck();
+  }
   handle->deleteLater();
 }
 
@@ -270,6 +295,8 @@ CurrentWindowWlrootsImpl::CurrentWindowWlrootsImpl(QObject* parent)
     : CurrentWindowProvider(parent), manager_(new WlrToplevelMgr()) {
   connect(manager_, &WlrToplevelMgr::TopLevelActivated,
     this, &CurrentWindowWlrootsImpl::OnTopLevelActivated);
+  connect(manager_, &WlrToplevelMgr::NoTopLevelActivated,
+    this, &CurrentWindowWlrootsImpl::OnNoTopLevelActivated);
 
   LOG(INFO) << absl::StrCat("Constructor of CurrentWindowWlrootsImpl has ",
     "been invoked!!\n ", "Extension active = ",
@@ -306,6 +333,23 @@ void CurrentWindowWlrootsImpl::OnTopLevelActivated(const QString &app_id,
   }
 
   window_info_.package_name = app_id;
+  emit CurrentWindowChanged();
+}
+
+
+void CurrentWindowWlrootsImpl::OnNoTopLevelActivated() {
+  const QString application_name = IsGxdeWlcom()
+    ? QStringLiteral("gxde-desktop-panel") : QString();
+  const QString package_name = IsGxdeWlcom()
+    ? QStringLiteral("gxde-desktop-panel") : QString();
+
+  if (window_info_.application_name == application_name &&
+      window_info_.package_name == package_name) {
+    return;
+  }
+
+  window_info_.application_name = application_name;
+  window_info_.package_name = package_name;
   emit CurrentWindowChanged();
 }
 
