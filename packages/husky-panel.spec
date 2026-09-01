@@ -24,6 +24,7 @@ BuildRequires:  libdbusmenu-lxqt-devel
 BuildRequires:  kf6-kservice-devel
 BuildRequires:  extra-cmake-modules
 BuildRequires:  pkgconfig(libpulse)
+BuildRequires:  pkgconfig(gio-2.0)
 
 # Optional: enables XCB/X11 session support
 # BuildRequires:  libxcb-devel
@@ -35,6 +36,7 @@ Requires:       layer-shell-qt
 Requires:       libdbusmenu-lxqt
 Requires:       kf6-kservice
 Requires:       pulseaudio-libs
+Requires:       glib2
 
 %description
 HuskyPanel is a shell bar panel for Linux Wayland sessions, built with Qt 6 and

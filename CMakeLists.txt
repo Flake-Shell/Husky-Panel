@@ -54,6 +54,8 @@ pkg_check_modules(XCB xcb IMPORTED_TARGET)
 
 pkg_check_modules(PULSE REQUIRED libpulse IMPORTED_TARGET)
 
+pkg_check_modules(GIO REQUIRED gio-2.0 IMPORTED_TARGET)
+
 find_package(QT 
   NAMES Qt6 
   REQUIRED COMPONENTS 
@@ -365,6 +367,7 @@ target_link_libraries(HuskyPanel
   Qt${QT_VERSION_MAJOR}::DBus
   KF6::Service
   PkgConfig::PULSE
+  PkgConfig::GIO
   $<$<BOOL:${XCB_FOUND}>:PkgConfig::XCB>
 )
 

@@ -15,6 +15,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <gio/gio.h>
+
 #include <QApplication>
 #include <QLocale>
 #include <QTranslator>
@@ -356,6 +358,54 @@ void LoadPlatformTheme() {
 }
 
 
+QString ReadGSettingsString(const char* schema_id, const char* key) {
+  GSettingsSchemaSource* source = g_settings_schema_source_get_default();
+  if (source == nullptr) {
+    return {};
+  }
+
+  GSettingsSchema* schema = g_settings_schema_source_lookup(
+    source, schema_id, true);
+  if (schema == nullptr || !g_settings_schema_has_key(schema, key)) {
+    if (schema != nullptr) {
+      g_settings_schema_unref(schema);
+    }
+    return {};
+  }
+
+  GSettings* settings = g_settings_new_full(schema, nullptr, nullptr);
+  gchar* value = g_settings_get_string(settings, key);
+  const QString result = QString::fromUtf8(value);
+  g_free(value);
+  g_object_unref(settings);
+  g_settings_schema_unref(schema);
+  return result;
+}
+
+
+void LoadWaylandIconTheme() {
+  if (!QGuiApplication::platformName().contains(
+      QStringLiteral("wayland"), Qt::CaseInsensitive)) {
+    return;
+  }
+
+  QString icon_theme = ReadGSettingsString(
+    "com.deepin.dde.appearance", "icon-theme");
+  if (icon_theme.isEmpty()) {
+    icon_theme = ReadGSettingsString(
+      "org.gnome.desktop.interface", "icon-theme");
+  }
+  if (icon_theme.isEmpty()) {
+    LOG(WARNING) << absl::StrCat("No Wayland icon theme found in GSettings.");
+    return;
+  }
+
+  QIcon::setThemeName(icon_theme);
+  LOG(INFO) << absl::StrCat("Loaded Wayland icon theme from GSettings: ",
+    icon_theme.toStdString(), ".");
+}
+
+
 /**
  * @brief Application entry point.
  *
@@ -390,6 +440,7 @@ int main(int argc, char *argv[]) {
 
   LOG(INFO) << absl::StrCat("Now initializing panel...");
   QApplication a(argc, argv);
+  LoadWaylandIconTheme();
 
   LOG(WARNING) << absl::StrCat("Loading DEPRECIATED translator...");
   InitializedDepreciatedTranslator(a);

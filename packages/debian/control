@@ -20,6 +20,7 @@ Build-Depends: debhelper-compat (= 13),
  libkf6service-dev,
  extra-cmake-modules,
  liblayershellqtinterface-dev,
+ libglib2.0-dev,
  libpulse-dev
 Standards-Version: 4.6.2
 Homepage: https://github.com/MarcusPy827/Husky-Panel

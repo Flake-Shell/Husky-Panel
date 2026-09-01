@@ -41,6 +41,7 @@ jobs:
             qt6-tools-dev \
             libkf6service-dev extra-cmake-modules \
             liblayershellqtinterface-dev \
+            libglib2.0-dev \
             libpulse-dev
 
       - name: Checkout repository
