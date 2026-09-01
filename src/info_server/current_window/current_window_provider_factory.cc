@@ -15,11 +15,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <cstring>
 #include <memory>
 
 #include <QDBusConnection>
 #include <QDBusConnectionInterface>
 #include <QDebug>
+#include <wayland-client.h>
 
 #include "absl/log/log.h"
 #include "absl/log/check.h"
@@ -35,6 +37,53 @@
 
 namespace panel {
 namespace backend {
+namespace {
+
+constexpr char kGxdeIdentifierInterface[] = "gxde_identifier_v1";
+
+void RegistryGlobal(void* data, wl_registry*, uint32_t, const char* interface,
+    uint32_t) {
+  if (std::strcmp(interface, kGxdeIdentifierInterface) == 0) {
+    *static_cast<bool*>(data) = true;
+  }
+}
+
+void RegistryGlobalRemove(void*, wl_registry*, uint32_t) {}
+
+constexpr wl_registry_listener kRegistryListener = {
+  RegistryGlobal,
+  RegistryGlobalRemove,
+};
+
+bool ProbeGxdeIdentifier() {
+  wl_display* display = wl_display_connect(nullptr);
+  if (display == nullptr) {
+    return false;
+  }
+
+  wl_registry* registry = wl_display_get_registry(display);
+  if (registry == nullptr) {
+    wl_display_disconnect(display);
+    return false;
+  }
+
+  bool detected = false;
+  wl_registry_add_listener(registry, &kRegistryListener, &detected);
+  if (wl_display_roundtrip(display) < 0) {
+    detected = false;
+  }
+  wl_registry_destroy(registry);
+  wl_display_disconnect(display);
+  return detected;
+}
+
+}  // namespace
+
+bool IsGxdeWlcom() {
+  static const bool detected = !qEnvironmentVariable("WAYLAND_DISPLAY")
+      .isEmpty() && ProbeGxdeIdentifier();
+  return detected;
+}
 
 std::unique_ptr<CurrentWindowProvider>InitCurrentWindowInfoServer(
     QObject *parent) {
@@ -46,8 +95,16 @@ std::unique_ptr<CurrentWindowProvider>InitCurrentWindowInfoServer(
   bool is_kwin = session_bus && session_bus->isServiceRegistered(
     DBUS_KWIN_SERVICE);
 
+  // GXDE-Wlcom may expose KWin-compatible services. Its identifier protocol is
+  // authoritative, so always use the wlroots foreign-toplevel implementation.
+  if (IsGxdeWlcom()) {
+    LOG(INFO) << absl::StrCat("GXDE-Wlcom session detected via ",
+      "gxde-identifier-v1. Using wlr-foreign-toplevel.");
+    return std::make_unique<CurrentWindowWlrootsImpl>(parent);
+  }
+
   // The KWin D-Bus script path is only needed on Wayland + KWin.
-  // FOr X11 + KWin then just use X11.
+  // For X11 + KWin then just use X11.
   if (is_wayland && is_kwin) {
     LOG(INFO) << absl::StrCat("KWin Wayland session detected. ",
       "Using KWin D-Bus app-bridge script.");

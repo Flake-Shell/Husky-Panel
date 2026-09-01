@@ -2,7 +2,7 @@
     "cmake.configureSettings": {
         "DEBIAN_PRESET": "ON"
     },
-    "cmake.sourceDirectory": "/home/char/Desktop/Repository/Public/husky-panel",
+    "cmake.sourceDirectory": "/home/char/Desktop/Repository/Public/Husky-Panel",
     "C_Cpp.default.compilerPath": "/usr/sbin/gcc",
     "qmlls.customImportPaths": [
         "/home/marcus/Desktop/Repository/Public/husky-panel/build/qml",

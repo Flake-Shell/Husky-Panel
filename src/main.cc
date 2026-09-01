@@ -49,6 +49,7 @@
 #include "src/info_server/session_handler/session_handler.h"
 #include "src/info_server/user_info/user_info.h"
 #include "src/info_server/tray_handler/tray_def.h"
+#include "src/info_server/current_window/current_window_provider_factory.h"
 #include "src/components/system_tray/system_tray_handler.h"
 #include "src/components/system_tray/tray_icon_image_handler.h"
 #include "src/components/volume_control/volume_control_handler.h"
@@ -371,6 +372,15 @@ int main(int argc, char *argv[]) {
   // Initialize logging
   absl::InitializeLog();
   absl::SetMinLogLevel(absl::LogSeverityAtLeast::kInfo);
+
+  // GXDE-Wlcom is a native Wayland compositor. Desktop-wide compatibility
+  // settings may put DXcb before Wayland, so override them before QApplication
+  // selects its QPA plugin.
+  if (panel::backend::IsGxdeWlcom()) {
+    qputenv("QT_QPA_PLATFORM", "wayland");
+    LOG(INFO) << absl::StrCat("GXDE-Wlcom detected via gxde-identifier-v1. ",
+      "Enforcing the native Wayland QPA backend.");
+  }
 
   LOG(INFO) << absl::StrCat("Loading platform theme...");
   LoadPlatformTheme();

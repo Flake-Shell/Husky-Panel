@@ -25,6 +25,7 @@ namespace panel {
 namespace backend {
 
 class CurrentWindowProvider;
+bool IsGxdeWlcom();
 std::unique_ptr<CurrentWindowProvider>InitCurrentWindowInfoServer(
   QObject *parent);
 
