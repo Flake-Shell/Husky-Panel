@@ -37,8 +37,8 @@ Depends: ${shlibs:Depends},
  qml6-module-qtquick-layouts,
  qml6-module-qtquick-templates,
  qml6-module-qtquick-window,
- libkf6service-bin,
- gnome-menus
+ libkf6service-bin
+Recommends: gnome-menus
 Description: A monolithic bar for Linux desktop
  HuskyPanel is a shell bar panel for Linux Wayland sessions, built with Qt 6
  and QML to deliver a Material Design 3 styled UI. Currently targeting KDE
