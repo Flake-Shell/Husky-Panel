@@ -60,7 +60,7 @@ jobs:
       - name: Create source tarball
         run: |
           APP_NAME="husky-panel"
-          APP_VERSION=$(grep -m1 '^%global app_version' packages/husky-panel.spec | awk '{print $3}')
+          APP_VERSION=$(grep -m1 '^%global app_version' fedora/husky-panel.spec | awk '{print $3}')
           TARBALL_NAME="${APP_NAME}-${APP_VERSION}"
 
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
@@ -89,7 +89,7 @@ jobs:
         run: |
           rpmdev-setuptree
           cp "${TARBALL_NAME}.tar.gz"          ~/rpmbuild/SOURCES/
-          cp "packages/${APP_NAME}.spec"       ~/rpmbuild/SPECS/
+          cp "fedora/${APP_NAME}.spec"       ~/rpmbuild/SPECS/
 
           rpmbuild -ba ~/rpmbuild/SPECS/${APP_NAME}.spec
 

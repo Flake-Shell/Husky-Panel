@@ -47,8 +47,8 @@ jobs:
       - name: Create source tarball from local checkout
         run: |
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          PKGVER=$(grep -m1 '^pkgver=' packages/PKGBUILD | cut -d= -f2)
-          TARBALL="packages/husky-panel-${PKGVER}.tar.gz"
+          PKGVER=$(grep -m1 '^pkgver=' arch/PKGBUILD | cut -d= -f2)
+          TARBALL="arch/husky-panel-${PKGVER}.tar.gz"
           git archive --format=tar.gz --prefix="Husky-Panel-${PKGVER}/" -o "${TARBALL}" HEAD
           if [[ -f .gitmodules ]]; then
             TMPDIR_SUB="$(mktemp -d)"
@@ -68,16 +68,16 @@ jobs:
           chmod 0440 /etc/sudoers.d/builder
 
           chown -R builder:builder "$GITHUB_WORKSPACE"
-          runuser -u builder -- bash -lc "cd '$GITHUB_WORKSPACE/packages' && PKGEXT='.pkg.tar.zst' makepkg --syncdeps --cleanbuild --noconfirm"
+          runuser -u builder -- bash -lc "cd '$GITHUB_WORKSPACE/arch' && PKGEXT='.pkg.tar.zst' makepkg --syncdeps --cleanbuild --noconfirm"
 
       - name: Upload package artifacts
         uses: actions/upload-artifact@v4
         with:
           name: husky-panel-arch-pkg-${{ matrix.arch }}
           path: |
-            packages/*.pkg.tar.zst
-            packages/*.pkg.tar.xz
-            packages/*.pkg.tar.zst.sig
-            packages/*.pkg.tar.xz.sig
+            arch/*.pkg.tar.zst
+            arch/*.pkg.tar.xz
+            arch/*.pkg.tar.zst.sig
+            arch/*.pkg.tar.xz.sig
           if-no-files-found: error
           retention-days: 30

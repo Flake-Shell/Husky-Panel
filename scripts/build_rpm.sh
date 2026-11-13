@@ -132,7 +132,7 @@ log "ok" "Source tarball created: ${CI_BUILD_DIR}/${TARBALL_NAME}.tar.gz"
 # ======================== Copy Spec ========================
 
 log "info" "Copying spec file..."
-SPEC_SRC="${PROJECT_ROOT}/packages/${APP_NAME}.spec"
+SPEC_SRC="${PROJECT_ROOT}/fedora/${APP_NAME}.spec"
 
 if [ ! -f "${SPEC_SRC}" ]; then
   log "error" "Spec file not found at ${SPEC_SRC}"

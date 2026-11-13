@@ -51,7 +51,6 @@ jobs:
 
       - name: Build .deb package
         run: |
-          cp -r packages/debian .
           chmod +x debian/rules
           dpkg-buildpackage -us -uc -b
           mkdir -p deb-output

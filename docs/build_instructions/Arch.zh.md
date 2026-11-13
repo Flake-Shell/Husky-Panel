@@ -67,7 +67,7 @@ sudo pacman -S qt6-base qt6-wayland qt6-declarative layer-shell-qt kservice libd
 如果你希望通过包管理器来管理安装，请您使用 `makepkg`构建`.pkg.tar.zst` 包：
 
 ```bash
-cd packages
+cd arch
 makepkg -si
 ```
 

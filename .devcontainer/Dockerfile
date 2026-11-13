@@ -1,7 +1,7 @@
 # Fedora 43 development container for HuskyPanel
 FROM fedora:43
 
-# ── Build dependencies (mirrors packages/husky-panel.spec) ──────────────────
+# ── Build dependencies (mirrors fedora/husky-panel.spec) ──────────────────
 RUN dnf install -y \
         cmake \
         gcc-c++ \

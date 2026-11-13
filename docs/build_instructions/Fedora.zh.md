@@ -83,7 +83,7 @@ APP_VERSION=1.0.0
 tar czf ~/rpmbuild/SOURCES/husky-panel-${APP_VERSION}.tar.gz \
     --exclude='.git' \
     --transform "s,^\./,husky-panel-${APP_VERSION}/," .
-cp packages/husky-panel.spec ~/rpmbuild/SPECS/
+cp fedora/husky-panel.spec ~/rpmbuild/SPECS/
 rpmbuild -ba ~/rpmbuild/SPECS/husky-panel.spec
 ```
 

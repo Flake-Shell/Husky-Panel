@@ -134,7 +134,7 @@ log "ok" "Source tarball created: ${CI_BUILD_DIR}/${TARBALL_NAME}.tar.gz"
 # ======================== Copy Debian packaging ========================
 
 log "info" "Copying debian/ packaging directory..."
-DEBIAN_SRC="${PROJECT_ROOT}/packages/debian"
+DEBIAN_SRC="${PROJECT_ROOT}/debian"
 
 if [ ! -d "${DEBIAN_SRC}" ]; then
   log "error" "Debian packaging dir not found at ${DEBIAN_SRC}"

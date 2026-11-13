@@ -33,7 +33,7 @@ sudo pacman -S qt6-base qt6-wayland qt6-declarative layer-shell-qt kservice libd
 If you prefer a proper system-managed installation, you can build and install a `.pkg.tar.zst` package using `makepkg`:
 
 ```bash
-cd packages
+cd arch
 makepkg -si
 ```
 

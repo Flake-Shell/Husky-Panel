@@ -133,7 +133,7 @@ log "ok" "Source tarball created: ${CI_BUILD_DIR}/${TARBALL_NAME}.tar.gz"
 # ======================== Copy PKGBUILD ========================
 
 log "info" "Copying PKGBUILD..."
-PKGBUILD_SRC="${PROJECT_ROOT}/packages/PKGBUILD"
+PKGBUILD_SRC="${PROJECT_ROOT}/arch/PKGBUILD"
 
 if [ ! -f "${PKGBUILD_SRC}" ]; then
   log "error" "PKGBUILD not found at ${PKGBUILD_SRC}"
