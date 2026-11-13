@@ -27,7 +27,7 @@ option(USE_VENDORED_LIBS
 )
 
 option(DEBIAN_PRESET
-  "Debian/Ubuntu preset: vendor and statically link dbusmenu-lxqt, use system LayerShellQt."
+  "Debian/Ubuntu preset: vendor and statically link dbusmenu-lxqt; use system LayerShellQt if it is the Qt6 build (>= 6), otherwise vendor it too."
   OFF
 )
 
@@ -253,8 +253,21 @@ set(PROJECT_SOURCES
   src/main.cc
 )
 
-if(USE_VENDORED_LIBS)
-  message(STATUS "USE_VENDORED_LIBS=ON: building vendored dbusmenu-lxqt and layer-shell-qt")
+# LayerShellQt must be the Qt6 build (>= 6). Some distros (e.g. openKylin)
+# still ship the Plasma 5 / Qt5 build under the same package name; linking it
+# pulls Qt5Core/Qt5Gui into the process next to Qt6 and segfaults on startup.
+set(HUSKY_VENDOR_LAYERSHELLQT ${USE_VENDORED_LIBS})
+if(DEBIAN_PRESET AND NOT USE_VENDORED_LIBS)
+  find_package(LayerShellQt 6 QUIET)
+  if(NOT LayerShellQt_FOUND)
+    message(STATUS "DEBIAN_PRESET=ON: no Qt6 LayerShellQt (>= 6) on the system, "
+      "falling back to vendored layer-shell-qt")
+    set(HUSKY_VENDOR_LAYERSHELLQT ON)
+  endif()
+endif()
+
+if(HUSKY_VENDOR_LAYERSHELLQT)
+  message(STATUS "Building vendored layer-shell-qt (static)")
 
   # Switch off testing to accelerate 3rdparty builds
   set(BUILD_TESTING OFF CACHE BOOL "" FORCE)
@@ -267,24 +280,29 @@ if(USE_VENDORED_LIBS)
   add_subdirectory(lib/3rdparty/layer-shell-qt EXCLUDE_FROM_ALL)
   set(CMAKE_INSTALL_PREFIX ${OLD_INSTALL_PREFIX})
 
-  set(VENDORED_STATIC_SWITCHABLE_LIBS  dbusmenu-lxqt LayerShellQtInterface)
-  set(SYSTEM_DYNAMIC_SWITCHABLE_LIBS)
+  set(_LAYERSHELL_STATIC  LayerShellQtInterface)
+  set(_LAYERSHELL_DYNAMIC)
 
   # Let source files know to use vendored layer-shell-qt headers
   add_compile_definitions(HUSKY_USE_VENDORED_LAYERSHELLQT)
-elseif(DEBIAN_PRESET)
-  message(STATUS "DEBIAN_PRESET=ON: vendored static dbusmenu-lxqt, system LayerShellQt")
-  find_package(LayerShellQt REQUIRED)
-
-  set(VENDORED_STATIC_SWITCHABLE_LIBS  dbusmenu-lxqt)
-  set(SYSTEM_DYNAMIC_SWITCHABLE_LIBS   LayerShellQt::Interface)
 else()
-  message(STATUS "USE_VENDORED_LIBS=OFF: using system dbusmenu-lxqt and LayerShellQt")
-  find_package(dbusmenu-lxqt REQUIRED)
-  find_package(LayerShellQt REQUIRED)
+  # REQUIRED with a version: fail loudly instead of linking a Qt5 build.
+  find_package(LayerShellQt 6 REQUIRED)
+  message(STATUS "Using system LayerShellQt ${LayerShellQt_VERSION}")
 
-  set(VENDORED_STATIC_SWITCHABLE_LIBS)
-  set(SYSTEM_DYNAMIC_SWITCHABLE_LIBS  dbusmenu-lxqt LayerShellQt::Interface)
+  set(_LAYERSHELL_STATIC)
+  set(_LAYERSHELL_DYNAMIC  LayerShellQt::Interface)
+endif()
+
+if(USE_VENDORED_LIBS OR DEBIAN_PRESET)
+  message(STATUS "Using vendored static dbusmenu-lxqt")
+  set(VENDORED_STATIC_SWITCHABLE_LIBS  dbusmenu-lxqt ${_LAYERSHELL_STATIC})
+  set(SYSTEM_DYNAMIC_SWITCHABLE_LIBS   ${_LAYERSHELL_DYNAMIC})
+else()
+  message(STATUS "Using system dbusmenu-lxqt")
+  find_package(dbusmenu-lxqt REQUIRED)
+  set(VENDORED_STATIC_SWITCHABLE_LIBS  ${_LAYERSHELL_STATIC})
+  set(SYSTEM_DYNAMIC_SWITCHABLE_LIBS   dbusmenu-lxqt ${_LAYERSHELL_DYNAMIC})
 endif()
 
 set_source_files_properties(${TS_FILES}
