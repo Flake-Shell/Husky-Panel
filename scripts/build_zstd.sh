@@ -44,10 +44,10 @@ bold() {
 # ======================== Variables ========================
 
 APP_NAME="husky-panel"
-APP_VERSION="0.9.4"
-
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+
+APP_VERSION="$(grep -m1 '^pkgver=' "${PROJECT_ROOT}/arch/PKGBUILD" | cut -d= -f2)"
 
 CI_BUILD_DIR="${PROJECT_ROOT}/ci_build"
 TARBALL_NAME="${APP_NAME}-${APP_VERSION}"

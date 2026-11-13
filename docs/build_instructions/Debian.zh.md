@@ -66,7 +66,7 @@ Do you want to clean it?\nI mean... to delete everything in it?\n    (y/n) >>
 
 ## 安装依赖
 ```bash
-sudo sudo apt install build-essential cmake \
+sudo apt install build-essential cmake \
     libwayland-dev wayland-protocols libwayland-bin libxkbcommon-dev pkg-config \
     qt6-base-dev qt6-base-private-dev \
     qt6-declarative-dev qt6-declarative-private-dev \
@@ -76,6 +76,8 @@ sudo sudo apt install build-essential cmake \
     liblayershellqtinterface-dev \
     libpulse-dev
 ```
+
+> ℹ️ **注意**：在 Debian forky/sid（Qt ≥ 6.10）上已没有 `qt6-wayland-dev-tools` 这个包，`qtwaylandscanner` 已并入 `qt6-base-dev-tools`。请从上面的命令中去掉 `qt6-wayland-dev-tools`，改装 `qt6-base-dev-tools`。
 
 ## 构建与安装
 ### 构建面板自身

@@ -32,7 +32,7 @@ If you see the log output:
 ## Install Dependencies
 
 ```bash
-sudo sudo apt install build-essential cmake \
+sudo apt install build-essential cmake \
     libwayland-dev wayland-protocols libwayland-bin libxkbcommon-dev pkg-config \
     qt6-base-dev qt6-base-private-dev \
     qt6-declarative-dev qt6-declarative-private-dev \
@@ -42,6 +42,8 @@ sudo sudo apt install build-essential cmake \
     liblayershellqtinterface-dev \
     libpulse-dev
 ```
+
+> ℹ️ **Note**: On Debian forky/sid (Qt ≥ 6.10), `qt6-wayland-dev-tools` no longer exists — `qtwaylandscanner` now ships in `qt6-base-dev-tools`. Drop `qt6-wayland-dev-tools` from the command above and install `qt6-base-dev-tools` instead.
 
 ## Build & Installation
 ### Build the Bar Itself

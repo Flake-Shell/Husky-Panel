@@ -4,7 +4,9 @@
 
 variables:
   APP_NAME: "husky-panel"
-  APP_VERSION: "0.9.4"
+  # Only used in artifact names (artifacts:name cannot see shell vars from before_script).
+  # Keep in sync with debian/changelog, fedora/husky-panel.spec and arch/PKGBUILD.
+  APP_VERSION: "1.0.1"
   GIT_SUBMODULE_STRATEGY: recursive
 
 stages:
