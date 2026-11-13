@@ -86,10 +86,8 @@ build:rpm:fedora:
     expire_in: 30 days
 
   rules:
-    # Run on default branch, tags, and merge requests
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-    - if: $CI_COMMIT_TAG
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    # Build only for release tags (GitLab Releases are always backed by a tag)
+    - if: $CI_COMMIT_TAG =~ /^v/
 
 build:rpm:fedora:aarch64:
   stage: build
@@ -151,9 +149,8 @@ build:rpm:fedora:aarch64:
     expire_in: 30 days
 
   rules:
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-    - if: $CI_COMMIT_TAG
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    # Build only for release tags (GitLab Releases are always backed by a tag)
+    - if: $CI_COMMIT_TAG =~ /^v/
 
 # ======================== Debian Build (.deb) ========================
 
@@ -189,9 +186,8 @@ build:deb:debian:
     expire_in: 30 days
 
   rules:
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-    - if: $CI_COMMIT_TAG
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    # Build only for release tags (GitLab Releases are always backed by a tag)
+    - if: $CI_COMMIT_TAG =~ /^v/
 
 build:deb:debian:arm64:
   stage: build
@@ -225,9 +221,8 @@ build:deb:debian:arm64:
     expire_in: 30 days
 
   rules:
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-    - if: $CI_COMMIT_TAG
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    # Build only for release tags (GitLab Releases are always backed by a tag)
+    - if: $CI_COMMIT_TAG =~ /^v/
 
 # ======================== Arch Build (zstd package) ========================
 build:pkg:arch:
@@ -282,9 +277,8 @@ build:pkg:arch:
       - arch-pkgs/
     expire_in: 30 days
   rules:
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-    - if: $CI_COMMIT_TAG
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    # Build only for release tags (GitLab Releases are always backed by a tag)
+    - if: $CI_COMMIT_TAG =~ /^v/
 
 build:pkg:arch:aarch64:
   stage: build
@@ -324,6 +318,5 @@ build:pkg:arch:aarch64:
       - arch-pkgs/
     expire_in: 30 days
   rules:
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-    - if: $CI_COMMIT_TAG
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    # Build only for release tags (GitLab Releases are always backed by a tag)
+    - if: $CI_COMMIT_TAG =~ /^v/

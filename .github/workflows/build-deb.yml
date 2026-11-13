@@ -5,11 +5,11 @@
 name: Build Debian Package
 
 on:
+  # Build only for release tags (every GitHub Release is backed by a tag,
+  # so this covers releases too). Use "Run workflow" for manual builds.
   push:
-    branches: [main]
-    tags: ["*"]
-  pull_request:
-    branches: [main]
+    tags: ["v*"]
+  workflow_dispatch:
 
 jobs:
   build-deb:

@@ -5,11 +5,11 @@
 name: Build RPM
 
 on:
+  # Build only for release tags (every GitHub Release is backed by a tag,
+  # so this covers releases too). Use "Run workflow" for manual builds.
   push:
-    branches: [main]
     tags: ["v*"]
-  pull_request:
-    branches: [main]
+  workflow_dispatch:
 
 jobs:
   build-rpm-fedora:
