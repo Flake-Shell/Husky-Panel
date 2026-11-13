@@ -4,7 +4,7 @@ husky-panel (1.0.1-1) stable; urgency=high
   * Fixed keyboard focus issue on XOrg sessions.
   * Fixed the alignment issue of the day of the week and date on calendar.
   * Fixed the menu height overflow problem.
- -- MarcusPy827 <>  Tue, 21 Apr 2026 04:03:47 -5000
+ -- CharOfString <root@charofstring.cc>  Tue, 21 Apr 2026 04:03:47 -5000
 
 husky-panel (1.0.0-1) unstable; urgency=medium
 
@@ -27,7 +27,7 @@ husky-panel (1.0.0-1) unstable; urgency=medium
   * Redo the ripple and clip effects of AppIndicator.
   * Added wlroots WM support for AppIndicator.
 
- -- MarcusPy827 <>  Fri, 17 Apr 2026 00:00:00 +0000
+ -- CharOfString <root@charofstring.cc>  Fri, 17 Apr 2026 00:00:00 +0000
 
 husky-panel (0.9.4-1) unstable; urgency=medium
 
@@ -36,10 +36,10 @@ husky-panel (0.9.4-1) unstable; urgency=medium
   * Enhanced AppDrawer style.
   * Added tons of animations to the status bar, application drawer, and calendar.
 
- -- MarcusPy827 <>  Wed, 01 Apr 2026 00:00:00 +0000
+ -- CharOfString <root@charofstring.cc>  Wed, 01 Apr 2026 00:00:00 +0000
 
 husky-panel (0.9.3-1) unstable; urgency=low
 
   * Initial packaging.
 
- -- MarcusPy827 <>  Tue, 10 Mar 2026 00:00:00 +0000
+ -- CharOfString <root@charofstring.cc>  Tue, 10 Mar 2026 00:00:00 +0000
