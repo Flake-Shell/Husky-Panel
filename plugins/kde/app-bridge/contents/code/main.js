@@ -12,7 +12,9 @@ workspace.windowActivated.connect(function(window) {
   console.log("marcus.panel.util.AppBridge Window has been changed into: "
     + name);
 
-  if (name !== "HuskyPanel" && appid !== "HuskyPanel") {
+  var isPanel = name === "husky-panel" || appid === "husky-panel"
+    || name === "HuskyPanel" || appid === "HuskyPanel";
+  if (!isPanel) {
     callDBus("marcus.panel.util.AppBridge", "/AppBridge",
       "marcus.panel.util.AppBridge", "UpdateActiveApp", name, appid, title);
   }

@@ -2,7 +2,7 @@
 
 > ⚠️ **Note**: For Debian, make sure that your Debian version is Trixie.
 
-> ℹ️ **Note**: For GXDE users, we have tested on GXDE 25. Except some session options are missing on the default Desktop environment but the building shall be fine. You will have to use the command `QT_QPA_PLATFORMTHEME=QT_QUICK_CONTROLS_STYLE=Basic HuskyPanel ` to launch the panel.
+> ℹ️ **Note**: For GXDE users, we have tested on GXDE 25. Except some session options are missing on the default Desktop environment but the building shall be fine. You will have to use the command `QT_QPA_PLATFORMTHEME=QT_QUICK_CONTROLS_STYLE=Basic husky-panel` to launch the panel.
 
 > ℹ️ **Note**: Seems that Debian does NOT ship the `libdbusmenu-lxqt` development packages. Luckily, we have already vendored it. Use the flag `-DDEBIAN_PRESET=ON` while building.
 

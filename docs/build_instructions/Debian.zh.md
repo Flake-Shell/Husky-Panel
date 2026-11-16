@@ -2,7 +2,7 @@
 
 > ⚠️ **注意**: 对于Debian，确保你正在使用基于Trixie的发行版。
 
-> ℹ️ **注意**: 对于GXDE用户，我们使用了GXDE25测试了构建。一些会话选项在默认桌面上不可用，但是编译应该没问题。您需要使用`QT_QPA_PLATFORMTHEME=QT_QUICK_CONTROLS_STYLE=Basic HuskyPanel `指令来启动面板。
+> ℹ️ **注意**: 对于GXDE用户，我们使用了GXDE25测试了构建。一些会话选项在默认桌面上不可用，但是编译应该没问题。您需要使用`QT_QPA_PLATFORMTHEME=QT_QUICK_CONTROLS_STYLE=Basic husky-panel`指令来启动面板。
 
 > ℹ️ **注意**: 似乎Debian仓库没有`libdbusmenu-lxqt`的devel包。幸运的是我们集成了这个库，在编译时启用`-DDEBIAN_PRESET=ON` 这个flag即可。
 

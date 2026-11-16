@@ -56,7 +56,7 @@ Plasma 6 / KWin.
 %files
 %license COPYING
 %doc README.md CHANGELOG
-%{_bindir}/HuskyPanel
+%{_bindir}/husky-panel
 %{_datadir}/kwin/scripts/marcus-app-bridge/
 
 %changelog

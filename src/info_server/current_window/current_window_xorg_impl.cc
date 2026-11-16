@@ -218,7 +218,8 @@ void CurrentWindowXorgImpl::UpdateActiveWindow() {
     return;
   }
 
-  if (wm_class.contains(QLatin1String("HuskyPanel"), Qt::CaseInsensitive)) {
+  if (wm_class.contains(QLatin1String("husky-panel"), Qt::CaseInsensitive) ||
+      wm_class.contains(QLatin1String("HuskyPanel"), Qt::CaseInsensitive)) {
     return;
   }
 

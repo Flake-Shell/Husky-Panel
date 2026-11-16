@@ -389,6 +389,10 @@ target_link_libraries(HuskyPanel
   $<$<BOOL:${XCB_FOUND}>:PkgConfig::XCB>
 )
 
+set_target_properties(HuskyPanel PROPERTIES
+  OUTPUT_NAME husky-panel
+)
+
 include(GNUInstallDirs)
 install(TARGETS 
   HuskyPanel
