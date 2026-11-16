@@ -29,11 +29,17 @@ makedepends=(
 optdepends=(
     'libxcb: X11/Xorg session support'
 )
-source=("$pkgname-$pkgver.tar.gz::$url/archive/refs/tags/$pkgver.tar.gz")
-sha256sums=('SKIP')
+# Build straight from this repository's source tree (the parent of the
+# directory holding this PKGBUILD) instead of downloading a remote tarball.
+source=()
+sha256sums=()
+
+_srcroot() {
+    realpath "$startdir/.."
+}
 
 build() {
-    cmake -B build -S "Husky-Panel-$pkgver" \
+    cmake -B build -S "$(_srcroot)" \
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_INSTALL_PREFIX=/usr \
         -DINSTALL_KWIN_PLUGIN=ON
@@ -42,5 +48,5 @@ build() {
 
 package() {
     DESTDIR="$pkgdir" cmake --install build
-    install -Dm644 "Husky-Panel-$pkgver/COPYING" "$pkgdir/usr/share/licenses/$pkgname/COPYING"
+    install -Dm644 "$(_srcroot)/COPYING" "$pkgdir/usr/share/licenses/$pkgname/COPYING"
 }

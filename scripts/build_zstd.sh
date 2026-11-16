@@ -50,7 +50,6 @@ PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 APP_VERSION="$(grep -m1 '^pkgver=' "${PROJECT_ROOT}/arch/PKGBUILD" | cut -d= -f2)"
 
 CI_BUILD_DIR="${PROJECT_ROOT}/ci_build"
-TARBALL_NAME="${APP_NAME}-${APP_VERSION}"
 
 DO_BUILD=false
 for arg in "$@"; do
@@ -89,59 +88,17 @@ else
   log "ok" "Created ci_build directory: ${CI_BUILD_DIR}"
 fi
 
-# ======================== Source Tarball ========================
+# ======================== Check PKGBUILD ========================
 
-log "info" "\n"
-log "info" "Creating source tarball..."
+# arch/PKGBUILD builds directly from this repository's source tree, so no
+# source tarball is needed. makepkg must run from arch/ so that the PKGBUILD
+# can locate the repository root via "$startdir/..".
+PKGBUILD_DIR="${PROJECT_ROOT}/arch"
 
-if git -C "${PROJECT_ROOT}" rev-parse --is-inside-work-tree > /dev/null 2>&1; then
-    # Use git archive for a clean, reproducible tarball.
-    git -C "${PROJECT_ROOT}" archive \
-        --format=tar.gz \
-        --prefix="${TARBALL_NAME}/" \
-        -o "${CI_BUILD_DIR}/${TARBALL_NAME}.tar.gz" \
-        HEAD
-
-    # git-archive does not include submodule contents.  If any submodules
-    # exist we need to layer them into the tarball.
-    if [[ -f "${PROJECT_ROOT}/.gitmodules" ]]; then
-        log "info" "Packing submodules into tarball..."
-        TMPDIR_SUB="$(mktemp -d)"
-        trap 'rm -rf "${TMPDIR_SUB}"' EXIT
-
-        mkdir -p "${TMPDIR_SUB}/${TARBALL_NAME}"
-        tar xzf "${CI_BUILD_DIR}/${TARBALL_NAME}.tar.gz" -C "${TMPDIR_SUB}"
-
-        git -C "${PROJECT_ROOT}" submodule foreach --quiet --recursive \
-            "git archive --prefix=\"${TARBALL_NAME}/\${sm_path}/\" HEAD | tar xf - -C \"${TMPDIR_SUB}\""
-
-        tar czf "${CI_BUILD_DIR}/${TARBALL_NAME}.tar.gz" -C "${TMPDIR_SUB}" "${TARBALL_NAME}"
-        log "ok" "Submodules packed."
-    fi
-else
-    log "warn" "Not inside a git repository — falling back to plain tar."
-    tar czf "${CI_BUILD_DIR}/${TARBALL_NAME}.tar.gz" \
-        --transform "s|^.|${TARBALL_NAME}|" \
-        --exclude='.git' \
-        --exclude='build' \
-        --exclude='ci_build' \
-        -C "${PROJECT_ROOT}" .
-fi
-
-log "ok" "Source tarball created: ${CI_BUILD_DIR}/${TARBALL_NAME}.tar.gz"
-
-# ======================== Copy PKGBUILD ========================
-
-log "info" "Copying PKGBUILD..."
-PKGBUILD_SRC="${PROJECT_ROOT}/arch/PKGBUILD"
-
-if [ ! -f "${PKGBUILD_SRC}" ]; then
-  log "error" "PKGBUILD not found at ${PKGBUILD_SRC}"
+if [ ! -f "${PKGBUILD_DIR}/PKGBUILD" ]; then
+  log "error" "PKGBUILD not found at ${PKGBUILD_DIR}/PKGBUILD"
   exit 1
 fi
-
-cp "${PKGBUILD_SRC}" "${CI_BUILD_DIR}/"
-log "ok" "PKGBUILD copied to ci_build/."
 
 # ======================== Build pkg ========================
 
@@ -157,13 +114,11 @@ if $DO_BUILD; then
   MAKEPKG_DIR="${CI_BUILD_DIR}/archbuild"
   mkdir -p "${MAKEPKG_DIR}"
 
-  cp "${CI_BUILD_DIR}/${TARBALL_NAME}.tar.gz" "${MAKEPKG_DIR}/"
-  cp "${CI_BUILD_DIR}/PKGBUILD"               "${MAKEPKG_DIR}/"
-
   log "info" "Running makepkg... this may take a while."
   (
-    cd "${MAKEPKG_DIR}"
-    makepkg -f --skipchecksums --noconfirm
+    cd "${PKGBUILD_DIR}"
+    BUILDDIR="${MAKEPKG_DIR}" PKGDEST="${MAKEPKG_DIR}" \
+      makepkg -f --cleanbuild --noconfirm
   )
 
   log "ok" "Arch package build finished!"
@@ -181,6 +136,6 @@ if ! $DO_BUILD; then
   log "info" "\n"
   log "info" "To build the package, either re-run with --build:"
   log "info" "  $0 --build"
-  log "info" "Or manually (from ci_build/):"
-  log "info" "  cd ${CI_BUILD_DIR} && makepkg -f --skipchecksums"
+  log "info" "Or manually (from arch/):"
+  log "info" "  cd ${PKGBUILD_DIR} && makepkg -f"
 fi

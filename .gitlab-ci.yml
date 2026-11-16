@@ -251,20 +251,7 @@ build:pkg:arch:
     - "echo 'builder ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/builder"
     - chmod 0440 /etc/sudoers.d/builder
 
-    # ---- Create source tarball from local checkout (before chown) ----
-    - TARBALL="$CI_PROJECT_DIR/arch/${APP_NAME}-${APP_VERSION}.tar.gz"
-    - git archive --format=tar.gz --prefix="Husky-Panel-${APP_VERSION}/" -o "${TARBALL}" HEAD
-    - |
-      if [[ -f .gitmodules ]]; then
-        TMPDIR_SUB="$(mktemp -d)"
-        mkdir -p "${TMPDIR_SUB}/Husky-Panel-${APP_VERSION}"
-        tar xzf "${TARBALL}" -C "${TMPDIR_SUB}"
-        git submodule foreach --quiet --recursive \
-          "git archive --prefix=\"Husky-Panel-${APP_VERSION}/\${sm_path}/\" HEAD | tar xf - -C \"${TMPDIR_SUB}\""
-        tar czf "${TARBALL}" -C "${TMPDIR_SUB}" "Husky-Panel-${APP_VERSION}"
-        rm -rf "${TMPDIR_SUB}"
-      fi
-
+    # arch/PKGBUILD builds directly from this checkout (no remote source).
     - chown -R builder:builder "$CI_PROJECT_DIR"
   script:
     - runuser -u builder -- bash -lc "cd '$CI_PROJECT_DIR/arch' && makepkg --syncdeps --cleanbuild --noconfirm"
@@ -294,18 +281,7 @@ build:pkg:arch:aarch64:
     - "echo 'builder ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/builder"
     - chmod 0440 /etc/sudoers.d/builder
 
-    - TARBALL="$CI_PROJECT_DIR/arch/${APP_NAME}-${APP_VERSION}.tar.gz"
-    - git archive --format=tar.gz --prefix="Husky-Panel-${APP_VERSION}/" -o "${TARBALL}" HEAD
-    - |
-      if [[ -f .gitmodules ]]; then
-        TMPDIR_SUB="$(mktemp -d)"
-        mkdir -p "${TMPDIR_SUB}/Husky-Panel-${APP_VERSION}"
-        tar xzf "${TARBALL}" -C "${TMPDIR_SUB}"
-        git submodule foreach --quiet --recursive \
-          "git archive --prefix=\"Husky-Panel-${APP_VERSION}/\${sm_path}/\" HEAD | tar xf - -C \"${TMPDIR_SUB}\""
-        tar czf "${TARBALL}" -C "${TMPDIR_SUB}" "Husky-Panel-${APP_VERSION}"
-        rm -rf "${TMPDIR_SUB}"
-      fi
+    # arch/PKGBUILD builds directly from this checkout (no remote source).
     - chown -R builder:builder "$CI_PROJECT_DIR"
   script:
     - runuser -u builder -- bash -lc "cd '$CI_PROJECT_DIR/arch' && PKGEXT='.pkg.tar.zst' makepkg --syncdeps --cleanbuild --noconfirm"

@@ -12,6 +12,12 @@ lib/3rdparty/layershell-qt/.reuse/*
 ci_build/*
 !ci_build/README.md
 
+# makepkg outputs
+arch/src/
+arch/pkg/
+arch/*.pkg.tar.*
+arch/*.tar.gz
+
 # QML Config
 .qmlls.ini
 

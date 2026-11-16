@@ -44,22 +44,7 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Create source tarball from local checkout
-        run: |
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          PKGVER=$(grep -m1 '^pkgver=' arch/PKGBUILD | cut -d= -f2)
-          TARBALL="arch/husky-panel-${PKGVER}.tar.gz"
-          git archive --format=tar.gz --prefix="Husky-Panel-${PKGVER}/" -o "${TARBALL}" HEAD
-          if [[ -f .gitmodules ]]; then
-            TMPDIR_SUB="$(mktemp -d)"
-            mkdir -p "${TMPDIR_SUB}/Husky-Panel-${PKGVER}"
-            tar xzf "${TARBALL}" -C "${TMPDIR_SUB}"
-            git submodule foreach --quiet --recursive \
-              "git archive --prefix=\"Husky-Panel-${PKGVER}/\${sm_path}/\" HEAD | tar xf - -C \"${TMPDIR_SUB}\""
-            tar czf "${TARBALL}" -C "${TMPDIR_SUB}" "Husky-Panel-${PKGVER}"
-            rm -rf "${TMPDIR_SUB}"
-          fi
-
+      # arch/PKGBUILD builds directly from this checkout (no remote source).
       - name: Build package with makepkg
         run: |
           useradd -m builder
